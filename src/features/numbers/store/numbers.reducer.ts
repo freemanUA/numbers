@@ -1,5 +1,4 @@
 import {NumbersActions, NumbersActionTypes} from './numbers.actions';
-import {NUMBERS_LENGTH} from '../constants';
 
 export type NumbersState = {
   data: string[];

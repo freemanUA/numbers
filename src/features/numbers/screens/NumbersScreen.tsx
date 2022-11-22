@@ -7,11 +7,11 @@ import {
   Dimensions,
   SafeAreaView,
 } from 'react-native';
-import Modal from 'react-native-modal';
 import {useDispatch, useSelector} from 'react-redux';
 import {IState} from '../../../store/reducerCombiner';
 import {generateNumbers} from '../store/numbers.actions';
-import CustomButton from '../components/CustomButton';
+import CustomButton from '../../../shared/components/CustomButton';
+import HistoryModal from './HistoryModal';
 
 const {width} = Dimensions.get('window');
 const BOX_SIZE = width / 4;
@@ -20,8 +20,8 @@ const NumbersScreen: React.FC = () => {
   const dispatch = useDispatch();
   const {data} = useSelector((state: IState) => state.numbers);
 
-  const [history, setHistory] = useState<string[] | []>([]);
-  const [modalVisible, setModalVisibility] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
+  const [modalVisible, setModalVisibility] = useState<boolean>(false);
 
   const handleGenerate = useCallback(
     () => dispatch(generateNumbers()),
@@ -42,14 +42,8 @@ const NumbersScreen: React.FC = () => {
   const openModal = () => setModalVisibility(true);
 
   const renderItem = (item: string, index: number) => (
-    <View key={item + index.toString()} style={styles.box}>
+    <View key={item + index} style={styles.box}>
       <Text style={styles.numberText}>{item}</Text>
-    </View>
-  );
-
-  const renderHistoryItem = (item: string, index: number) => (
-    <View key={item + index.toString()}>
-      <Text style={styles.historyText}>{item}</Text>
     </View>
   );
 
@@ -60,20 +54,11 @@ const NumbersScreen: React.FC = () => {
         <CustomButton title="Generate" onPress={handleGenerate} />
         <CustomButton title="Show Log" onPress={openModal} />
       </View>
-      <Modal
+      <HistoryModal
         isVisible={modalVisible}
-        style={{margin: 100}}
-        onBackButtonPress={closeModal}
-        onBackdropPress={closeModal}
-        backdropColor="black"
-        backdropOpacity={0.7}>
-        <View style={styles.modalContainer}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {history.map(renderHistoryItem)}
-          </ScrollView>
-          <CustomButton title="Close" onPress={closeModal} />
-        </View>
-      </Modal>
+        onClose={closeModal}
+        data={history}
+      />
     </SafeAreaView>
   );
 };
@@ -99,17 +84,6 @@ const styles = StyleSheet.create({
   },
   numberText: {
     fontSize: 30,
-  },
-  historyText: {
-    flex: 1,
-    marginVertical: 10,
-    letterSpacing: 3,
-    fontSize: 20,
-  },
-  modalContainer: {
-    alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: 5,
   },
 });
 
